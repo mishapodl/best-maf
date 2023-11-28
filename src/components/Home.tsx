@@ -1,5 +1,5 @@
 // import { Link } from 'react-router-dom';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import './Home.scss';
 import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -16,42 +16,61 @@ import { TableBody, TableCell, TableHead } from '@mui/material';
 import Paper from '@mui/material/Paper';
 
 type PlayerType = {
-  id: 'maf' | 'don' | 'res' | 'com' | 'doc' | 'bit';
+  id: 'maf' | 'don' | 'res' | 'com' | 'doc' | 'bit' | string;
   name: 'Мафия' | 'Дон' | 'Комисар' | 'Житель' | 'Доктор' | 'Шлюха';
   active: boolean;
   numberPlayer?: number;
 };
 
 const roles10: PlayerType[] = [
-  { id: 'maf', name: 'Мафия', active: false },
-  { id: 'maf', name: 'Мафия', active: false },
+  { id: 'maf-1', name: 'Мафия', active: false },
+  { id: 'maf-2', name: 'Мафия', active: false },
   { id: 'don', name: 'Дон', active: false },
   { id: 'com', name: 'Комисар', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
+  { id: 'res-1', name: 'Житель', active: false },
+  { id: 'res-2', name: 'Житель', active: false },
+  { id: 'res-3', name: 'Житель', active: false },
+  { id: 'res-4', name: 'Житель', active: false },
+  { id: 'res-5', name: 'Житель', active: false },
+  { id: 'res-6', name: 'Житель', active: false },
 ];
 
 const roles12: PlayerType[] = [
-  { id: 'maf', name: 'Мафия', active: false },
-  { id: 'maf', name: 'Мафия', active: false },
+  { id: 'maf-1', name: 'Мафия', active: false },
+  { id: 'maf-2', name: 'Мафия', active: false },
   { id: 'don', name: 'Дон', active: false },
   { id: 'com', name: 'Комисар', active: false },
-  { id: 'maf', name: 'Мафия', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'res', name: 'Житель', active: false },
-  { id: 'doc', name: 'Доктор', active: false },
+  { id: 'res-1', name: 'Житель', active: false },
+  { id: 'res-2', name: 'Житель', active: false },
+  { id: 'res-3', name: 'Житель', active: false },
+  { id: 'res-4', name: 'Житель', active: false },
+  { id: 'res-5', name: 'Житель', active: false },
+  { id: 'maf-3', name: 'Мафия', active: false },
   { id: 'bit', name: 'Шлюха', active: false },
+  { id: 'doc', name: 'Доктор', active: false },
 ];
 
-const shuffle = (array: PlayerType[]) => {
-  return array.sort(() => Math.random() - 0.5);
+type StorageKeys =
+  | 'countPlayers'
+  | 'nextStep'
+  | 'playersTabel'
+  | 'listRoles'
+  | 'listPlayers'
+  | 'activeList'
+  | 'isSelect'
+  | 'isSave';
+
+const storage = {
+  get: (key: StorageKeys) => {
+    const item = localStorage.getItem(key);
+    return item ? JSON.parse(item) : null;
+  },
+  remove: (key: StorageKeys) => {
+    localStorage.removeItem(key);
+  },
+  set: (key: StorageKeys, value: string | object | boolean | number) => {
+    return localStorage.setItem(key, JSON.stringify(value));
+  },
 };
 
 type PlayerTypes = {
@@ -229,22 +248,62 @@ const Players = ({ listPlayers }: PlayerTypes) => {
 
 type CreateRolesTypes = {
   countPlayers: '' | '10' | '12';
+  setResetGame: any;
+  setCountPlayers: any;
+  setNextStep: any;
 };
 
-const CreateRoles = ({ countPlayers }: CreateRolesTypes) => {
-  const listRoles: typeof roles10 = countPlayers === '10' ? roles10 : roles12;
+const CreateRoles = ({
+  countPlayers,
+  setResetGame,
+  setCountPlayers,
+  setNextStep,
+}: CreateRolesTypes) => {
+  const listRoles: any =
+    storage.get('listRoles') || (countPlayers === '10' ? roles10 : roles12);
+  console.log(countPlayers);
 
-  const [listPlayers, setListPlayers] = useState<PlayerType[]>([]);
-  const [activeList, setActiveList] = useState(false);
-  const [isSelect, setIsSelect] = useState<number | null>(null);
-  const [isSave, setIsSave] = useState<boolean>(false);
+  console.log('listRoles', listRoles);
 
-  const shuffeldListPlayers = useMemo(() => shuffle(listRoles), []);
+  const [roles, setRoles] = useState<PlayerType[]>(
+    storage.get('listRoles') || listRoles
+  );
+  console.log('roles', roles);
+
+  const [listPlayers, setListPlayers] = useState<PlayerType[]>(
+    storage.get('listPlayers') || []
+  );
+  console.log('listPlayers', listPlayers);
+
+  const [activeList, setActiveList] = useState(
+    storage.get('activeList') || false
+  );
+  console.log('activeList', activeList);
+
+  const [isSelect, setIsSelect] = useState<number | null>(
+    storage.get('isSelect') || null
+  );
+  console.log('isSelect', isSelect);
+
+  const [isSave, setIsSave] = useState<boolean>(storage.get('isSave') || false);
+
+  useEffect(() => {
+    storage.set('listPlayers', listPlayers);
+  }, [listPlayers]);
+
+  useEffect(() => {
+    storage.set('listRoles', roles);
+  }, [roles]);
 
   const handleAddPlayer = () => {
     const index = isSelect as number;
     const role = listRoles[index];
-    listRoles[index] = { ...listRoles[index], active: true };
+
+    const updatedRoles = roles.map(player => {
+      return role.id === player.id ? { ...player, active: true } : player;
+    });
+
+    setRoles(updatedRoles);
 
     setListPlayers([
       ...(listPlayers as any),
@@ -255,6 +314,8 @@ const CreateRoles = ({ countPlayers }: CreateRolesTypes) => {
         numberPlayer: listPlayers.length + 1,
       },
     ]);
+
+    setIsSave(false);
   };
 
   const renderListRoles = () => {
@@ -269,7 +330,7 @@ const CreateRoles = ({ countPlayers }: CreateRolesTypes) => {
           marginBottom: '20px',
         }}
       >
-        {shuffeldListPlayers.map((role, i) => {
+        {roles.map((role, i) => {
           return (
             <Button
               key={i}
@@ -297,67 +358,136 @@ const CreateRoles = ({ countPlayers }: CreateRolesTypes) => {
     );
   };
 
+  const resetGame = () => {
+    setRoles([]);
+    setListPlayers([]);
+    setActiveList(false);
+    setIsSelect(null);
+    setIsSave(false);
+    setCountPlayers('');
+    setNextStep(false);
+    storage.remove('activeList');
+    storage.remove('countPlayers');
+    storage.remove('isSave');
+    storage.remove('isSelect');
+    storage.remove('listPlayers');
+    storage.remove('listRoles');
+    storage.remove('playersTabel');
+    storage.remove('nextStep');
+    setResetGame(true);
+  };
+
   return (
     <>
       {activeList && renderListRoles()}
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          width: '90%',
-          margin: '0 auto',
-          border: '1px solid',
-          padding: '7px',
-          borderRadius: '10px',
-        }}
-      >
-        <Button
-          onClick={() => setActiveList(true)}
-          disabled={activeList}
-          variant='contained'
+      {listPlayers.length !== +countPlayers && (
+        <Box
           sx={{
-            width: '110px',
+            display: 'flex',
+            justifyContent: 'space-between',
+            width: '90%',
+            margin: '0 auto',
+            border: '2px solid black',
+            padding: '7px',
+            borderRadius: '10px',
           }}
         >
-          Add Role
-        </Button>
-        {activeList && (
           <Button
-            onClick={() => {
-              setIsSave(false);
-              setActiveList(false);
-              setIsSelect(null);
-            }}
+            onClick={() => setActiveList(true)}
+            disabled={activeList}
             variant='contained'
             sx={{
-              background: 'red',
-              color: 'white',
+              width: '110px',
             }}
           >
-            X
+            Добавить
           </Button>
-        )}
-        <Button
-          disabled={!isSave}
-          onClick={handleAddPlayer}
-          variant='contained'
+          {activeList && (
+            <Button
+              onClick={() => {
+                setIsSave(false);
+                setActiveList(false);
+                setIsSelect(null);
+              }}
+              variant='contained'
+              sx={{
+                background: 'red',
+                color: 'white',
+              }}
+            >
+              X
+            </Button>
+          )}
+          <Button
+            disabled={!isSave}
+            onClick={handleAddPlayer}
+            variant='contained'
+            sx={{
+              width: '110px',
+            }}
+          >
+            Сохранить
+          </Button>
+        </Box>
+      )}
+      {countPlayers && (
+        <Container>
+          <Players listPlayers={listPlayers} />
+        </Container>
+      )}
+
+      {countPlayers && (
+        <Box
           sx={{
-            width: '110px',
+            display: 'flex',
+            justifyContent: 'center',
+            margin: '15px 0',
           }}
         >
-          Save
-        </Button>
-      </Box>
-      <Container>
-        <Players listPlayers={listPlayers} />
-      </Container>
+          <Button
+            variant='contained'
+            sx={{
+              width: '100%',
+              margin: '0 16px',
+              height: '50px',
+            }}
+            disabled={listPlayers.length !== +countPlayers}
+          >
+            Начать игру
+          </Button>
+
+          <Button
+            // disabled={listPlayers.length === +countPlayers}
+            variant='contained'
+            sx={{
+              width: '100%',
+              margin: '0 16px',
+              height: '50px',
+            }}
+            onClick={resetGame}
+          >
+            Сбросить
+          </Button>
+        </Box>
+      )}
     </>
   );
 };
 
 const Home = () => {
-  const [countPlayers, setCountPlayers] = useState<'' | '10' | '12'>('');
-  const [nextStep, setNextStep] = useState<boolean>(false);
+  const [countPlayers, setCountPlayers] = useState<'' | '10' | '12'>(
+    storage.get('countPlayers') || ''
+  );
+  const [nextStep, setNextStep] = useState<boolean>(
+    storage.get('nextStep') || false
+  );
+
+  const [restGame, setResetGame] = useState<boolean>(false);
+
+  useEffect(() => {
+    storage.set('countPlayers', countPlayers);
+    storage.set('nextStep', nextStep);
+  }, [countPlayers]);
 
   const handleChange = (value: any) => {
     setCountPlayers(value.target.value);
@@ -365,70 +495,98 @@ const Home = () => {
 
   return (
     <>
-      <Container
-        sx={{
-          padding: '0 !important',
-          margin: '0 auto',
-          width: '100%',
-          boxSizing: 'border-box',
-        }}
-      >
-        <Box
+      {!nextStep && (
+        <Container
           sx={{
+            padding: '0 !important',
             margin: '0 auto',
-            padding: '10px 20px',
-            display: 'flex',
-            flexDirection: 'column',
-            justifyContent: 'space-between',
-            height: '200px',
             width: '100%',
             boxSizing: 'border-box',
           }}
         >
           <Box
             sx={{
-              border: 1,
-              p: '10px',
-              textAlign: 'center',
+              margin: '0 auto',
+              padding: '10px 20px',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              height: '200px',
+              width: '100%',
+              boxSizing: 'border-box',
             }}
           >
-            <FormControl>
-              <FormLabel id='demo-controlled-radio-buttons-group'>
-                Кiлькiсть
-              </FormLabel>
-              <RadioGroup
-                aria-labelledby='demo-controlled-radio-buttons-group'
-                name='controlled-radio-buttons-group'
-                value={countPlayers}
-                onChange={handleChange}
-                defaultValue={null}
-                sx={{
-                  padding: '0 10px',
-                  borderRadius: '10px',
-                  ackground: '#ffffff96',
-                }}
-              >
-                <FormControlLabel value='10' control={<Radio />} label='10' />
-                <FormControlLabel value='12' control={<Radio />} label='12' />
-              </RadioGroup>
-            </FormControl>
+            <Box
+              sx={{
+                border: '2px solid black',
+                p: '10px',
+                textAlign: 'center',
+                color: '#fff',
+              }}
+            >
+              <FormControl>
+                <FormLabel
+                  sx={{
+                    color: '#000 !important',
+                  }}
+                  id='demo-controlled-radio-buttons-group'
+                >
+                  Игроки
+                </FormLabel>
+                <RadioGroup
+                  aria-labelledby='demo-controlled-radio-buttons-group'
+                  name='controlled-radio-buttons-group'
+                  value={countPlayers}
+                  onChange={handleChange}
+                  defaultValue={null}
+                  sx={{
+                    padding: '0 10px',
+                    borderRadius: '10px',
+                  }}
+                >
+                  <FormControlLabel
+                    sx={{
+                      color: '#000',
+                    }}
+                    value='10'
+                    control={<Radio />}
+                    label='10'
+                  />
+                  <FormControlLabel
+                    sx={{
+                      color: '#000',
+                    }}
+                    value='12'
+                    control={<Radio />}
+                    label='12'
+                  />
+                </RadioGroup>
+              </FormControl>
+            </Box>
+
+            <Button
+              disabled={!countPlayers}
+              onClick={() => setNextStep(true)}
+              variant='contained'
+              size='medium'
+              style={{
+                outline: 'none',
+              }}
+            >
+              Дальше
+            </Button>
           </Box>
+        </Container>
+      )}
 
-          <Button
-            disabled={!countPlayers}
-            onClick={() => setNextStep(true)}
-            variant='contained'
-            size='medium'
-            style={{
-              outline: 'none',
-            }}
-          >
-            Далi
-          </Button>
-        </Box>
-      </Container>
-
-      {nextStep && <CreateRoles countPlayers={countPlayers} />}
+      {nextStep && (
+        <CreateRoles
+          countPlayers={countPlayers}
+          setResetGame={setResetGame}
+          setCountPlayers={setCountPlayers}
+          setNextStep={setNextStep}
+        />
+      )}
     </>
   );
 };
