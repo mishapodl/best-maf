@@ -1,5 +1,5 @@
 // import { Link } from 'react-router-dom';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './Home.scss';
 import Radio from '@mui/material/Radio';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -484,6 +484,8 @@ const Home = () => {
 
   const [restGame, setResetGame] = useState<boolean>(false);
 
+  console.log(restGame);
+  
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
     storage.set('nextStep', nextStep);
