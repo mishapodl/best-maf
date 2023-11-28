@@ -59,7 +59,7 @@ type PlayerTypes = {
 };
 
 const Players = ({ listPlayers }: PlayerTypes) => {
-  const playersTabel = [...listPlayers];
+  // const playersTabel = [...listPlayers];
 
   return (
     <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
