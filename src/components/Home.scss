@@ -1,0 +1,57 @@
+// Определение стилей для компонента Home
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.description {
+  font-size: 1.5rem;
+  color: #4a5568;
+  margin-bottom: 2rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  font-weight: bold;
+  color: #fff;
+  background-color: #3490dc;
+  border-radius: 0.25rem;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #2779bd;
+  }
+}
+
+.maf {
+  background-color: #e76363 !important;
+}
+
+.res {
+  background-color: #55d255 !important;
+}
+
+.don {
+  background-color: #373737  !important;
+  color: #fff !important;
+}
+
+.com {
+  background-color: #ffff63 !important;
+  color: black !important
+}
+
+.doc {
+  background-color: #63a9ff !important;
+  color: black !important
+}
+
+.bit {
+  background-color: #ff63b4 !important;
+  color: black !important
+}
