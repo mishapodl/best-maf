@@ -1,0 +1,22 @@
+// Определение стилей для компонента Player
+
+.player-item {
+  cursor: pointer;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e0;
+  border-radius: 0.25rem;
+  transition: background-color 0.3s ease;
+  color: #000;
+
+  &:hover {
+    background-color: #f7fafc;
+  }
+
+  &.alive {
+    background-color: #d1fae5;
+  }
+
+  &.dead {
+    background-color: #feb2b2;
+  }
+}
