@@ -79,27 +79,62 @@ const storage = {
   },
 };
 
+const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
+  console.log(countListPlayers)
+  const emojis = countListPlayers === 10 ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '❤️'];
+
+  return (
+    <div
+      style={{
+        border: '1px solid #ccc',
+        background: '#fff',
+        borderRadius: '10px',
+        fontSize: '24px'
+      }}
+    >
+      {emojis.map((emoji, index) => (
+        <div
+          key={index}
+          style={{ padding: '1px', cursor: 'pointer' }}
+          onClick={() => onSelectEmoji(emoji)}
+        >
+          {emoji}
+        </div>
+      ))}
+    </div>
+  );
+};
+
 type PlayerTypes = {
   listPlayers: PlayerType[];
 };
 
 const Players = ({ listPlayers }: PlayerTypes) => {
   // const playersTabel = [...listPlayers];
-  const emotions: any = [
-    { id: 'mute', name: '🤐' },
-    { id: 'sex', name: '❤️' },
-  ];
 
-  const [showEmotions, setShowEmotions] = useState<any>({
-    show: false,
-    player: null,
-  });
-  const [valueEmotion, setValueEmotions] = useState<any>(null);
+  const [showEmojiPicker, setShowEmojiPicker] = useState(
+    Array(listPlayers.length).fill(false)
+  );
+  const [inputValues, setInputValues] = useState(
+    Array(listPlayers.length).fill('')
+  );
 
-  // const choseEmotion = (e: any) => {};
+  
+
+  const toggleEmojiPicker = (index: any) => {
+    const newShowEmojiPicker = [...showEmojiPicker];
+    newShowEmojiPicker[index] = !newShowEmojiPicker[index];
+    setShowEmojiPicker(newShowEmojiPicker);
+  };
+
+  const handleEmojiClick = (emoji: any, index: any) => {
+    const newInputValues = [...inputValues];
+    newInputValues[index] = inputValues[index] + emoji;
+    setInputValues(newInputValues);
+  };
 
   return (
-    <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
+    <TableContainer component={Paper} sx={{ marginTop: '20px', overflow: 'visible' }}>
       <Table aria-label='simple table'>
         <TableHead>
           <TableRow>
@@ -172,7 +207,7 @@ const Players = ({ listPlayers }: PlayerTypes) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {listPlayers.map((player: PlayerType) => (
+          {listPlayers.map((player: PlayerType, index: any) => (
             <TableRow
               key={player.numberPlayer}
               sx={{
@@ -234,59 +269,44 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                     outline: 'none',
                   }}
                   maxLength={10}
-                />
-                {/* <Button
-                  sx={{
-                    width: '24px',
-                    padding: 0,
-                    background: player.active ? 'green' : 'red',
-                    minWidth: 'unset',
-                    color: '#000',
-                    marginRight: '10px',
+                  value={inputValues[index]}
+                  onChange={e => {
+                    const newInputValues = [...inputValues];
+                    newInputValues[index] = e.target.value;
+                    setInputValues(newInputValues);
                   }}
-                  variant='contained'
-                  onClick={() => {
-                    setShowEmotions({
-                      show: true,
-                      player: player.id,
-                    });
+                />
+                <button
+                  onClick={() => toggleEmojiPicker(index)}
+                  style={{
+                    fontSize: '20px',
+                    padding: '2px',
+                    marginRight: '8px',
                   }}
                 >
-                  +
-                </Button>
-                {showEmotions.show === true &&
-                  showEmotions.player === player.id && (
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        right: '40px',
-                        border: '2px solid black',
-                        background: 'white',
-                        borderRadius: '5px',
-                        display: 'flex',
-                      }}
-                    >
-                      {emotions.map((emotion: typeof emotions) => {
-                        return (
-                          <div
-                            key={emotion.id}
-                            style={{
-                              fontSize: '30px',
-                            }}
-                            onClick={() => {
-                              setShowEmotions({
-                                show: false,
-                                player: null,
-                              });
-                              setValueEmotions(showEmotions.name);
-                            }}
-                          >
-                            {emotion.name}
-                          </div>
-                        );
-                      })}
-                    </Box>
-                  )} */}
+                  🤦‍♀️
+                </button>
+                <Box
+                  sx={{
+                    position: 'absolute',
+                    zIndex: 200,
+                    borderRadius: '10px',
+                    right: '-34px',
+                    top: '8px',
+                    fontSize: '20px',
+                    // border: '1px solid black',
+                    color: "red"
+                  }}
+                >
+                  {showEmojiPicker[index] && (
+                    <EmojiPicker
+                      onSelectEmoji={(emoji: any) =>
+                        handleEmojiClick(emoji, index)
+                      }
+                      countListPlayers={listPlayers.length}
+                    />
+                  )}
+                </Box>
               </TableCell>
               <TableCell
                 component='th'
@@ -312,6 +332,8 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                     height: '50px',
                     background: 'transparent',
                     fontSize: '20px',
+                    textAlign: 'center',
+
                     outline: 'none',
                   }}
                 />
