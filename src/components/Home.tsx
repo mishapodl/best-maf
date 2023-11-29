@@ -13,11 +13,9 @@ import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import {
-  Input,
   TableBody,
   TableCell,
   TableHead,
-  TextField,
 } from '@mui/material';
 import Paper from '@mui/material/Paper';
 
@@ -600,6 +598,8 @@ const Home = () => {
   );
 
   const [restGame, setResetGame] = useState<boolean>(false);
+  
+  console.log(restGame)
 
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
