@@ -12,7 +12,13 @@ import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
-import { TableBody, TableCell, TableHead } from '@mui/material';
+import {
+  Input,
+  TableBody,
+  TableCell,
+  TableHead,
+  TextField,
+} from '@mui/material';
 import Paper from '@mui/material/Paper';
 
 type PlayerType = {
@@ -79,6 +85,18 @@ type PlayerTypes = {
 
 const Players = ({ listPlayers }: PlayerTypes) => {
   // const playersTabel = [...listPlayers];
+  const emotions: any = [
+    { id: 'mute', name: '🤐' },
+    { id: 'sex', name: '❤️' },
+  ];
+
+  const [showEmotions, setShowEmotions] = useState<any>({
+    show: false,
+    player: null,
+  });
+  const [valueEmotion, setValueEmotions] = useState<any>(null);
+
+  // const choseEmotion = (e: any) => {};
 
   return (
     <TableContainer component={Paper} sx={{ marginTop: '20px' }}>
@@ -195,11 +213,81 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                 component='th'
                 scope='row'
                 sx={{
-                  padding: '10px 10px',
                   fontSize: '16px',
+                  padding: '0',
                   color: player.id === 'don' ? '#fff !important' : '',
+                  display: 'flex',
+                  alignItems: 'center',
+                  position: 'relative',
                 }}
-              ></TableCell>
+              >
+                <input
+                  style={{
+                    width: '90%',
+                    border: '0',
+                    padding: '0',
+                    color: player.id === 'don' ? 'white' : 'black',
+                    height: '50px',
+                    background: 'transparent',
+                    paddingLeft: '10px',
+                    fontSize: '30px',
+                    outline: 'none',
+                  }}
+                  maxLength={10}
+                />
+                {/* <Button
+                  sx={{
+                    width: '24px',
+                    padding: 0,
+                    background: player.active ? 'green' : 'red',
+                    minWidth: 'unset',
+                    color: '#000',
+                    marginRight: '10px',
+                  }}
+                  variant='contained'
+                  onClick={() => {
+                    setShowEmotions({
+                      show: true,
+                      player: player.id,
+                    });
+                  }}
+                >
+                  +
+                </Button>
+                {showEmotions.show === true &&
+                  showEmotions.player === player.id && (
+                    <Box
+                      sx={{
+                        position: 'absolute',
+                        right: '40px',
+                        border: '2px solid black',
+                        background: 'white',
+                        borderRadius: '5px',
+                        display: 'flex',
+                      }}
+                    >
+                      {emotions.map((emotion: typeof emotions) => {
+                        return (
+                          <div
+                            key={emotion.id}
+                            style={{
+                              fontSize: '30px',
+                            }}
+                            onClick={() => {
+                              setShowEmotions({
+                                show: false,
+                                player: null,
+                              });
+                              setValueEmotions(showEmotions.name);
+                            }}
+                          >
+                            {emotion.name}
+                          </div>
+                        );
+                      })}
+                    </Box>
+                  )} */}
+              </TableCell>
               <TableCell
                 component='th'
                 scope='row'
@@ -212,7 +300,22 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                   textAlign: 'center',
                   fontWeight: 'bold',
                 }}
-              ></TableCell>
+              >
+                <input
+                  maxLength={2}
+                  style={{
+                    width: '100%',
+                    border: '0',
+                    padding: '0',
+                    paddingLeft: '0',
+                    color: player.id === 'don' ? 'white' : 'black',
+                    height: '50px',
+                    background: 'transparent',
+                    fontSize: '20px',
+                    outline: 'none',
+                  }}
+                />
+              </TableCell>
               <TableCell
                 component='th'
                 scope='row'
@@ -261,29 +364,21 @@ const CreateRoles = ({
 }: CreateRolesTypes) => {
   const listRoles: any =
     storage.get('listRoles') || (countPlayers === '10' ? roles10 : roles12);
-  console.log(countPlayers);
-
-  console.log('listRoles', listRoles);
 
   const [roles, setRoles] = useState<PlayerType[]>(
     storage.get('listRoles') || listRoles
   );
-  console.log('roles', roles);
 
   const [listPlayers, setListPlayers] = useState<PlayerType[]>(
     storage.get('listPlayers') || []
   );
-  console.log('listPlayers', listPlayers);
-
   const [activeList, setActiveList] = useState(
     storage.get('activeList') || false
   );
-  console.log('activeList', activeList);
 
   const [isSelect, setIsSelect] = useState<number | null>(
     storage.get('isSelect') || null
   );
-  console.log('isSelect', isSelect);
 
   const [isSave, setIsSave] = useState<boolean>(storage.get('isSave') || false);
 
@@ -484,8 +579,6 @@ const Home = () => {
 
   const [restGame, setResetGame] = useState<boolean>(false);
 
-  console.log(restGame);
-  
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
     storage.set('nextStep', nextStep);
