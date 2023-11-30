@@ -60,7 +60,8 @@ type StorageKeys =
   | 'activeList'
   | 'isSelect'
   | 'isSave'
-  | 'startGame';
+  | 'startGame'
+  | 'notions';
 
 const storage = {
   get: (key: StorageKeys) => {
@@ -199,7 +200,7 @@ const Popup = ({ resetGame, setShow }: any) => {
             top: 0,
             padding: 0,
             left: 0,
-            minWidth: 0
+            minWidth: 0,
           }}
         >
           ДА
@@ -694,6 +695,8 @@ const CreateRoles = ({
     );
   };
 
+  const [notions, setNotions] = useState(storage.get('notions') || '');
+
   const resetGame = () => {
     setRoles([]);
     setListPlayers([]);
@@ -702,6 +705,7 @@ const CreateRoles = ({
     setIsSave(false);
     setCountPlayers('');
     setNextStep(false);
+    setNotions('false');
     storage.remove('activeList');
     storage.remove('countPlayers');
     storage.remove('isSave');
@@ -711,6 +715,7 @@ const CreateRoles = ({
     storage.remove('playersTabel');
     storage.remove('nextStep');
     storage.remove('startGame');
+    storage.remove('notions');
     setStartGame(false);
   };
 
@@ -776,6 +781,26 @@ const CreateRoles = ({
         </Container>
       )}
 
+      {startGame && (
+        <textarea
+          style={{
+            width: '90%',
+            height: '200px',
+            padding: '20px',
+            boxSizing: 'border-box',
+            marginLeft: '4%',
+            fontSize: '18px',
+            lineHeight: '1.5',
+            marginTop: '10px',
+          }}
+          value={notions}
+          onChange={e => {
+            setNotions(e.target.value);
+            storage.set('notions', e.target.value);
+          }}
+        ></textarea>
+      )}
+
       {countPlayers && (
         <Box
           sx={{
@@ -805,14 +830,14 @@ const CreateRoles = ({
             disabled={startGame && listPlayers.length !== +countPlayers}
             variant='contained'
             sx={{
-              width: '30%',
+              width: '25%',
               margin: '0 16px',
               height: '40px',
               background: 'red',
               fontSize: '16px',
               position: 'fixed',
               bottom: '5px',
-              right: '-5px'
+              right: '-5px',
             }}
             onClick={() => {
               setShow(true);
@@ -868,7 +893,7 @@ const Home = () => {
             margin: '0 auto',
             width: '100%',
             boxSizing: 'border-box',
-            marginTop: '260px'
+            marginTop: '260px',
           }}
         >
           <Box
@@ -951,15 +976,17 @@ const Home = () => {
       {startGame && <MyTimer />}
 
       {nextStep && (
-        <CreateRoles
-          countPlayers={countPlayers}
-          setCountPlayers={setCountPlayers}
-          setNextStep={setNextStep}
-          activeList={activeList}
-          setActiveList={setActiveList}
-          setStartGame={setStartGame}
-          startGame={startGame}
-        />
+        <>
+          <CreateRoles
+            countPlayers={countPlayers}
+            setCountPlayers={setCountPlayers}
+            setNextStep={setNextStep}
+            activeList={activeList}
+            setActiveList={setActiveList}
+            setStartGame={setStartGame}
+            startGame={startGame}
+          />
+        </>
       )}
 
       {/* <button
