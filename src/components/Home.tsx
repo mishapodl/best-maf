@@ -101,22 +101,10 @@ const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
 
 type PlayerTypes = {
   listPlayers: PlayerType[];
-  newPlayer: any;
+  changeStatusUser: any;
 };
 
-const Players = ({ listPlayers, newPlayer }: PlayerTypes) => {
-  const [playersTabel, setPlayersTabel] = useState(listPlayers);
-
-  useEffect(() => {
-    const mass = storage.get('playersTabel') || [];
-
-    console.log(newPlayer);
-    console.log('---------------------');
-
-    setPlayersTabel([...mass, newPlayer]);
-
-    storage.set('playersTabel', playersTabel);
-  }, [listPlayers, newPlayer]);
+const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(
     Array(listPlayers.length).fill(false)
@@ -134,20 +122,6 @@ const Players = ({ listPlayers, newPlayer }: PlayerTypes) => {
     const newInputValues = [...inputValues];
     newInputValues[index] = inputValues[index] + emoji;
     setInputValues(newInputValues);
-  };
-
-  const changeStatusUser = (index: any) => {
-    setPlayersTabel((prevPlayersTabel: any) => {
-      const newPlayersTabel = [...prevPlayersTabel];
-      newPlayersTabel[index] = {
-        ...newPlayersTabel[index],
-        active: !newPlayersTabel[index].active,
-      };
-
-      storage.set('playersTabel', newPlayersTabel);
-
-      return newPlayersTabel;
-    });
   };
 
   return (
@@ -227,7 +201,7 @@ const Players = ({ listPlayers, newPlayer }: PlayerTypes) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {playersTabel.map((player: PlayerType, index: any) => (
+          {listPlayers.map((player: PlayerType, index: any) => (
             <TableRow
               key={player.numberPlayer}
               sx={{
@@ -465,8 +439,8 @@ const CreateRoles = ({
     storage.get('isSelect') || null
   );
 
-  const [newPlayer, setNewPlayer] = useState({});
   const [isSave, setIsSave] = useState<boolean>(storage.get('isSave') || false);
+  const [isChangedStatus, setIsChangedStatus] = useState(false);
 
   useEffect(() => {
     storage.set('listPlayers', listPlayers);
@@ -475,6 +449,27 @@ const CreateRoles = ({
   useEffect(() => {
     storage.set('listRoles', roles);
   }, [roles]);
+
+  useEffect(() => {
+    isChangedStatus === true && setListPlayers(storage.get('listPlayers') || []);
+    setIsChangedStatus(false);
+  }, [isChangedStatus]);
+
+  const changeStatusUser = (index: any) => {
+    setListPlayers((prevListPlayers: any) => {
+      const newListPlayers = [...prevListPlayers];
+      newListPlayers[index] = {
+        ...newListPlayers[index],
+        active: !newListPlayers[index].active,
+      };
+
+      setIsChangedStatus(true);
+
+      storage.set('listPlayers', newListPlayers);
+
+      return newListPlayers;
+    });
+  };
 
   const handleAddPlayer = () => {
     const index = isSelect as number;
@@ -493,7 +488,6 @@ const CreateRoles = ({
       numberPlayer: listPlayers.length + 1,
     };
 
-    setNewPlayer(player);
     setListPlayers([...(listPlayers as any), player]);
 
     setIsSave(false);
@@ -613,7 +607,11 @@ const CreateRoles = ({
       )}
       {countPlayers && (
         <Container>
-          <Players listPlayers={listPlayers} newPlayer={newPlayer} />
+          <Players
+            listPlayers={listPlayers}
+            // newPlayer={newPlayer}
+            changeStatusUser={changeStatusUser}
+          />
         </Container>
       )}
 
