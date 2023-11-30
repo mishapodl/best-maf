@@ -192,9 +192,14 @@ const Popup = ({ resetGame, setShow }: any) => {
           }}
           variant='contained'
           sx={{
-            width: '20%',
-            height: '50px',
+            width: '25px',
+            height: '25px',
             background: 'red',
+            position: 'absolute',
+            top: 0,
+            padding: 0,
+            right: 0,
+            minWidth: 0
           }}
         >
           ДА
@@ -205,8 +210,8 @@ const Popup = ({ resetGame, setShow }: any) => {
             setShow(false);
           }}
           sx={{
-            width: '45%',
-            height: '100px',
+            width: '70%',
+            height: '150px',
           }}
         >
           НЕТ
