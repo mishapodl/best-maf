@@ -12,11 +12,7 @@ import Box from '@mui/material/Box';
 import TableContainer from '@mui/material/TableContainer';
 import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
-import {
-  TableBody,
-  TableCell,
-  TableHead,
-} from '@mui/material';
+import { TableBody, TableCell, TableHead } from '@mui/material';
 import Paper from '@mui/material/Paper';
 
 type PlayerType = {
@@ -78,8 +74,8 @@ const storage = {
 };
 
 const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
-  console.log(countListPlayers)
-  const emojis = countListPlayers === 10 ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '❤️'];
+  const emojis =
+    countListPlayers === 10 ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '💕'];
 
   return (
     <div
@@ -87,7 +83,7 @@ const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
         border: '1px solid #ccc',
         background: '#fff',
         borderRadius: '10px',
-        fontSize: '24px'
+        fontSize: '24px',
       }}
     >
       {emojis.map((emoji, index) => (
@@ -105,10 +101,22 @@ const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
 
 type PlayerTypes = {
   listPlayers: PlayerType[];
+  newPlayer: any;
 };
 
-const Players = ({ listPlayers }: PlayerTypes) => {
-  // const playersTabel = [...listPlayers];
+const Players = ({ listPlayers, newPlayer }: PlayerTypes) => {
+  const [playersTabel, setPlayersTabel] = useState(listPlayers);
+
+  useEffect(() => {
+    const mass = storage.get('playersTabel') || [];
+
+    console.log(newPlayer);
+    console.log('---------------------');
+
+    setPlayersTabel([...mass, newPlayer]);
+
+    storage.set('playersTabel', playersTabel);
+  }, [listPlayers, newPlayer]);
 
   const [showEmojiPicker, setShowEmojiPicker] = useState(
     Array(listPlayers.length).fill(false)
@@ -117,22 +125,36 @@ const Players = ({ listPlayers }: PlayerTypes) => {
     Array(listPlayers.length).fill('')
   );
 
-  
-
   const toggleEmojiPicker = (index: any) => {
     const newShowEmojiPicker = [...showEmojiPicker];
     newShowEmojiPicker[index] = !newShowEmojiPicker[index];
     setShowEmojiPicker(newShowEmojiPicker);
   };
-
   const handleEmojiClick = (emoji: any, index: any) => {
     const newInputValues = [...inputValues];
     newInputValues[index] = inputValues[index] + emoji;
     setInputValues(newInputValues);
   };
 
+  const changeStatusUser = (index: any) => {
+    setPlayersTabel((prevPlayersTabel: any) => {
+      const newPlayersTabel = [...prevPlayersTabel];
+      newPlayersTabel[index] = {
+        ...newPlayersTabel[index],
+        active: !newPlayersTabel[index].active,
+      };
+
+      storage.set('playersTabel', newPlayersTabel);
+
+      return newPlayersTabel;
+    });
+  };
+
   return (
-    <TableContainer component={Paper} sx={{ marginTop: '20px', overflow: 'visible' }}>
+    <TableContainer
+      component={Paper}
+      sx={{ marginTop: '20px', overflow: 'visible' }}
+    >
       <Table aria-label='simple table'>
         <TableHead>
           <TableRow>
@@ -205,12 +227,11 @@ const Players = ({ listPlayers }: PlayerTypes) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {listPlayers.map((player: PlayerType, index: any) => (
+          {playersTabel.map((player: PlayerType, index: any) => (
             <TableRow
               key={player.numberPlayer}
               sx={{
                 padding: '0 10px',
-                // background: player.id === 'com' ? 'black !important' : '',
               }}
               className={player.id}
             >
@@ -220,11 +241,24 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                 sx={{
                   padding: '5px 10px',
                   borderRight: '1px solid',
-                  color: player.id === 'don' ? '#fff !important' : '',
+                  // color:
+                  //   player.id === 'don' ? '#fff !important' : '#fff !important',
+                  color: player.active
+                    ? player.id === 'don'
+                      ? 'white !important'
+                      : player.id === 'com'
+                      ? 'black !important'
+                      : ''
+                    : 'white !important',
                   width: '24px',
                   fontSize: '20px',
                   fontWeight: 'bold',
                   textAlign: 'center',
+                  background: player.active
+                    ? player.id === 'com'
+                      ? ''
+                      : ''
+                    : 'black !important',
                 }}
               >
                 {player.numberPlayer}
@@ -237,7 +271,13 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                   fontSize: '16px',
                   width: '60px',
                   borderRight: '1px solid',
-                  color: player.id === 'don' ? '#fff !important' : '',
+                  // color: player.id === 'don' ? '#fff !important' : '',
+                  background: player.active ? '' : 'black !important',
+                  color: player.active
+                    ? player.id === 'don'
+                      ? '#fff !important'
+                      : ''
+                    : 'white !important',
                 }}
               >
                 {player.name}
@@ -248,93 +288,78 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                 sx={{
                   fontSize: '16px',
                   padding: '0',
-                  color: player.id === 'don' ? '#fff !important' : '',
                   display: 'flex',
                   alignItems: 'center',
                   position: 'relative',
+                  color: player.active
+                    ? player.id === 'don'
+                      ? '#fff !important'
+                      : ''
+                    : 'black !important',
+                  background: player.active
+                    ? player.id === 'com'
+                      ? ''
+                      : ''
+                    : 'black !important',
+                  height: player.active ? '' : '43px',
                 }}
               >
-                <input
-                  style={{
-                    width: '90%',
-                    border: '0',
-                    padding: '0',
-                    color: player.id === 'don' ? 'white' : 'black',
-                    height: '50px',
-                    background: 'transparent',
-                    paddingLeft: '10px',
-                    fontSize: '30px',
-                    outline: 'none',
-                  }}
-                  maxLength={10}
-                  value={inputValues[index]}
-                  onChange={e => {
-                    const newInputValues = [...inputValues];
-                    newInputValues[index] = e.target.value;
-                    setInputValues(newInputValues);
-                  }}
-                />
-                <button
-                  onClick={() => toggleEmojiPicker(index)}
-                  style={{
-                    fontSize: '20px',
-                    padding: '2px',
-                    marginRight: '8px',
-                  }}
-                >
-                  🤦‍♀️
-                </button>
-                <Box
-                  sx={{
-                    position: 'absolute',
-                    zIndex: 200,
-                    borderRadius: '10px',
-                    right: '-34px',
-                    top: '8px',
-                    fontSize: '20px',
-                    // border: '1px solid black',
-                    color: "red"
-                  }}
-                >
-                  {showEmojiPicker[index] && (
-                    <EmojiPicker
-                      onSelectEmoji={(emoji: any) =>
-                        handleEmojiClick(emoji, index)
-                      }
-                      countListPlayers={listPlayers.length}
-                    />
-                  )}
-                </Box>
-              </TableCell>
-              <TableCell
-                component='th'
-                scope='row'
-                sx={{
-                  padding: '0 5px',
-                  width: '24px',
-                  fontSize: '20px',
-                  color: player.id === 'don' ? '#fff !important' : '',
-                  borderLeft: '1px solid',
-                  textAlign: 'center',
-                  fontWeight: 'bold',
-                }}
-              >
-                <input
-                  maxLength={2}
-                  style={{
-                    width: '100%',
-                    border: '0',
-                    padding: '0',
-                    paddingLeft: '0',
-                    color: player.id === 'don' ? 'white' : 'black',
-                    height: '50px',
-                    background: 'transparent',
-                    fontSize: '20px',
-                    textAlign: 'center',
-
-                    outline: 'none',
-                  }}
-                />
+                {player.active && (
+                  <input
+                    style={{
+                      width: '90%',
+                      border: '0',
+                      padding: '0',
+                      color: player.id === 'don' ? 'white' : 'black',
+                      height: '50px',
+                      background: 'transparent',
+                      paddingLeft: '10px',
+                      fontSize: '30px',
+                      outline: 'none',
+                    }}
+                    maxLength={10}
+                    value={inputValues[index]}
+                    onChange={e => {
+                      const newInputValues = [...inputValues];
+                      newInputValues[index] = e.target.value;
+                      setInputValues(newInputValues);
+                    }}
+                  />
+                )}
+                {player.active && (
+                  <button
+                    onClick={() => toggleEmojiPicker(index)}
+                    style={{
+                      fontSize: '20px',
+                      padding: '2px',
+                      marginRight: '8px',
+                    }}
+                  >
+                    🤦‍♀️
+                  </button>
+                )}
+                {player.active && (
+                  <Box
+                    sx={{
+                      position: 'absolute',
+                      zIndex: 200,
+                      borderRadius: '10px',
+                      right: '-34px',
+                      top: '8px',
+                      fontSize: '20px',
+                      color: 'red',
+                    }}
+                  >
+                    {showEmojiPicker[index] && (
+                      <EmojiPicker
+                        onSelectEmoji={(emoji: any) =>
+                          handleEmojiClick(emoji, index)
+                        }
+                        countListPlayers={listPlayers.length}
+                      />
+                    )}
+                  </Box>
+                )}
               </TableCell>
               <TableCell
                 component='th'
@@ -346,6 +371,47 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                   borderLeft: '1px solid',
                   textAlign: 'center',
                   fontWeight: 'bold',
+                  background: player.active ? '' : 'black !important',
+                  color: player.active
+                    ? player.id === 'don'
+                      ? '#fff !important'
+                      : ''
+                    : 'black !important',
+                }}
+              >
+                {player.active && (
+                  <input
+                    maxLength={2}
+                    style={{
+                      width: '100%',
+                      border: '0',
+                      padding: '0',
+                      paddingLeft: '0',
+                      color: player.id === 'don' ? 'white' : 'black',
+                      height: '50px',
+                      background: 'transparent',
+                      fontSize: '20px',
+                      textAlign: 'center',
+                      outline: 'none',
+                    }}
+                  />
+                )}
+              </TableCell>
+              <TableCell
+                component='th'
+                scope='row'
+                sx={{
+                  padding: '0 5px',
+                  width: '24px',
+                  fontSize: '20px',
+                  borderLeft: '1px solid',
+                  textAlign: 'center',
+                  fontWeight: 'bold',
+                  background: player.active
+                    ? player.id === 'com'
+                      ? ''
+                      : ''
+                    : 'black !important',
                 }}
               >
                 <Button
@@ -357,8 +423,9 @@ const Players = ({ listPlayers }: PlayerTypes) => {
                     color: '#000',
                   }}
                   variant='contained'
+                  onClick={() => changeStatusUser(index)}
                 >
-                  {player.active ? 'У' : '+'}
+                  {player.active ? 'У' : 'В'}
                 </Button>
               </TableCell>
             </TableRow>
@@ -388,18 +455,17 @@ const CreateRoles = ({
   const [roles, setRoles] = useState<PlayerType[]>(
     storage.get('listRoles') || listRoles
   );
-
   const [listPlayers, setListPlayers] = useState<PlayerType[]>(
     storage.get('listPlayers') || []
   );
   const [activeList, setActiveList] = useState(
     storage.get('activeList') || false
   );
-
   const [isSelect, setIsSelect] = useState<number | null>(
     storage.get('isSelect') || null
   );
 
+  const [newPlayer, setNewPlayer] = useState({});
   const [isSave, setIsSave] = useState<boolean>(storage.get('isSave') || false);
 
   useEffect(() => {
@@ -420,15 +486,15 @@ const CreateRoles = ({
 
     setRoles(updatedRoles);
 
-    setListPlayers([
-      ...(listPlayers as any),
-      {
-        id: role.id,
-        name: role.name,
-        active: true,
-        numberPlayer: listPlayers.length + 1,
-      },
-    ]);
+    const player = {
+      id: role.id,
+      name: role.name,
+      active: true,
+      numberPlayer: listPlayers.length + 1,
+    };
+
+    setNewPlayer(player);
+    setListPlayers([...(listPlayers as any), player]);
 
     setIsSave(false);
   };
@@ -547,7 +613,7 @@ const CreateRoles = ({
       )}
       {countPlayers && (
         <Container>
-          <Players listPlayers={listPlayers} />
+          <Players listPlayers={listPlayers} newPlayer={newPlayer} />
         </Container>
       )}
 
@@ -598,8 +664,6 @@ const Home = () => {
   );
 
   const [restGame, setResetGame] = useState<boolean>(false);
-  
-  console.log(restGame)
 
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
