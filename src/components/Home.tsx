@@ -108,19 +108,34 @@ const MyTimer = ({ expiryTimestamp }: any) => {
       </div>
       <button
         onClick={start}
-        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+        style={{
+          width: '23%',
+          marginRight: '5px',
+          color: '#fff',
+          padding: '5px',
+        }}
       >
         Start
       </button>
       <button
         onClick={pause}
-        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+        style={{
+          width: '23%',
+          marginRight: '5px',
+          color: '#fff',
+          padding: '5px',
+        }}
       >
         Pause
       </button>
       <button
         onClick={resume}
-        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+        style={{
+          width: '23%',
+          marginRight: '5px',
+          color: '#fff',
+          padding: '5px',
+        }}
       >
         Resume
       </button>
@@ -138,32 +153,73 @@ const MyTimer = ({ expiryTimestamp }: any) => {
   );
 };
 
-const Popup = ({ setRest, setShow }: any) => {
+const Popup = ({ resetGame, setShow }: any) => {
   return (
-    <div>
-      <h1>Сбросить?</h1>
-      <Button
-        onClick={() => {
-          setRest(true);
-          setShow(false);
+    <>
+      <div
+        style={{
+          background: '#0000008c',
+          position: 'fixed',
+          height: '100vh',
+          top: 0,
+          width: '100%',
+          left: 0,
+        }}
+      ></div>
+      <Container
+        sx={{
+          margin: '0',
+          border: '1px solid black',
+          position: 'fixed',
+          width: '95%',
+          display: 'flex',
+          height: '200px',
+          justifyContent: 'space-around',
+          padding: '50px 5px',
+          top: '30%',
+          background: '#84ea7a',
+          borderRadius: '10px',
+          alignItems: 'center',
+          zIndex: 200,
         }}
       >
-        ДА
-      </Button>
-      <Button
-        onClick={() => {
-          setShow(false);
-        }}
-      >
-        НЕТ
-      </Button>
-    </div>
+        <Button
+          onClick={() => {
+            console.log(233);
+            resetGame();
+            setShow(false);
+          }}
+          variant='contained'
+          sx={{
+            width: '20%',
+            height: '50px',
+            background: 'red',
+          }}
+        >
+          ДА
+        </Button>
+        <Button
+          variant='contained'
+          onClick={() => {
+            setShow(false);
+          }}
+          sx={{
+            width: '45%',
+            height: '100px',
+          }}
+        >
+          НЕТ
+        </Button>
+      </Container>
+    </>
   );
 };
 
 const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
+  const lengthPlayers = storage.get('countPlayers');
+
   const emojis =
-    countListPlayers === 10 ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '💕'];
+    lengthPlayers === '10' ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '💕'];
 
   return (
     <div
@@ -414,7 +470,7 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
                     {showEmojiPicker[index] && (
                       <EmojiPicker
                         onSelectEmoji={(emoji: any) => {
-                          console.log(emoji)
+                          console.log(emoji);
                           handleEmojiClick(emoji, index);
                         }}
                         countListPlayers={listPlayers.length}
@@ -535,6 +591,7 @@ const CreateRoles = ({
 
   const [isSave, setIsSave] = useState<boolean>(storage.get('isSave') || false);
   const [isChangedStatus, setIsChangedStatus] = useState(false);
+  const [showPopup, setShow] = useState<boolean>(false);
 
   useEffect(() => {
     storage.set('listPlayers', listPlayers);
@@ -748,12 +805,15 @@ const CreateRoles = ({
               margin: '0 16px',
               height: '50px',
             }}
-            onClick={resetGame}
+            onClick={() => {
+              setShow(true);
+            }}
           >
             Сбросить
           </Button>
         </Box>
       )}
+      {showPopup && <Popup resetGame={resetGame} setShow={setShow} />}
     </>
   );
 };
@@ -770,14 +830,9 @@ const Home = () => {
   );
 
   const [restGame, setResetGame] = useState<boolean>(false);
-  const [showPopup, setShow] = useState<boolean>(false);
   const [startGame, setStartGame] = useState<boolean>(
     storage.get('startGame') || false
   );
-
-  const handleShowPopup = () => {
-    setShow(true);
-  };
 
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
@@ -898,8 +953,6 @@ const Home = () => {
           startGame={startGame}
         />
       )}
-
-      {showPopup && <Popup setResetGame={restGame} setShow={handleShowPopup} />}
 
       {/* <button
         onClick={() => {
