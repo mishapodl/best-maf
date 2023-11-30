@@ -76,10 +76,11 @@ const storage = {
 };
 
 const MyTimer = ({ expiryTimestamp }: any) => {
-  const { seconds, start, pause, resume, restart } = useTimer({
+  const { seconds, pause, resume, restart } = useTimer({
     expiryTimestamp,
     onExpire: () => console.warn('onExpire called'),
   });
+  const [pauses, setPause] = useState(false);
 
   return (
     <div
@@ -106,41 +107,41 @@ const MyTimer = ({ expiryTimestamp }: any) => {
           {seconds}
         </span>
       </div>
+      {!pauses ? (
+        <button
+          onClick={() => {
+            setPause(true);
+            pause();
+          }}
+          style={{
+            width: '30%',
+            height: '50px',
+            marginRight: '30px',
+            color: '#fff',
+            padding: '5px',
+          }}
+        >
+          Pause
+        </button>
+      ) : (
+        <button
+          onClick={() => {
+            setPause(false);
+            resume();
+          }}
+          style={{
+            width: '30%',
+            height: '50px',
+            marginRight: '30px',
+            color: '#fff',
+            padding: '5px',
+          }}
+        >
+          Resume
+        </button>
+      )}
       <button
-        onClick={start}
-        style={{
-          width: '23%',
-          marginRight: '5px',
-          color: '#fff',
-          padding: '5px',
-        }}
-      >
-        Start
-      </button>
-      <button
-        onClick={pause}
-        style={{
-          width: '23%',
-          marginRight: '5px',
-          color: '#fff',
-          padding: '5px',
-        }}
-      >
-        Pause
-      </button>
-      <button
-        onClick={resume}
-        style={{
-          width: '23%',
-          marginRight: '5px',
-          color: '#fff',
-          padding: '5px',
-        }}
-      >
-        Resume
-      </button>
-      <button
-        style={{ width: '23%', color: '#fff', padding: '5px' }}
+        style={{ width: '30%', color: '#fff', padding: '5px', height: '50px' }}
         onClick={() => {
           const time = new Date();
           time.setSeconds(time.getSeconds() + 300);
@@ -422,26 +423,28 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
                 }}
               >
                 {player.active && (
-                  <input
-                    style={{
-                      width: '90%',
-                      border: '0',
-                      padding: '0',
-                      color: player.id === 'don' ? 'white' : 'black',
-                      height: '50px',
-                      background: 'transparent',
-                      paddingLeft: '10px',
-                      fontSize: '30px',
-                      outline: 'none',
-                    }}
-                    maxLength={10}
-                    value={inputValues[index]}
-                    onChange={e => {
-                      const newInputValues = [...inputValues];
-                      newInputValues[index] = e.target.value;
-                      setInputValues(newInputValues);
-                    }}
-                  />
+                  <>
+                    <input
+                      style={{
+                        width: '90%',
+                        border: '0',
+                        padding: '0',
+                        color: player.id === 'don' ? 'white' : 'black',
+                        height: '50px',
+                        background: 'transparent',
+                        paddingLeft: '10px',
+                        fontSize: '30px',
+                        outline: 'none',
+                      }}
+                      maxLength={10}
+                      value={inputValues[index]}
+                      onChange={e => {
+                        const newInputValues = [...inputValues];
+                        newInputValues[index] = e.target.value;
+                        setInputValues(newInputValues);
+                      }}
+                    />
+                  </>
                 )}
                 {player.active && (
                   <button
@@ -470,7 +473,6 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
                     {showEmojiPicker[index] && (
                       <EmojiPicker
                         onSelectEmoji={(emoji: any) => {
-                          console.log(emoji);
                           handleEmojiClick(emoji, index);
                         }}
                         countListPlayers={listPlayers.length}
