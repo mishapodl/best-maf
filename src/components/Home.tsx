@@ -14,6 +14,7 @@ import Table from '@mui/material/Table';
 import TableRow from '@mui/material/TableRow';
 import { TableBody, TableCell, TableHead } from '@mui/material';
 import Paper from '@mui/material/Paper';
+import { useTimer } from 'react-timer-hook';
 
 type PlayerType = {
   id: 'maf' | 'don' | 'res' | 'com' | 'doc' | 'bit' | string;
@@ -58,7 +59,8 @@ type StorageKeys =
   | 'listPlayers'
   | 'activeList'
   | 'isSelect'
-  | 'isSave';
+  | 'isSave'
+  | 'startGame';
 
 const storage = {
   get: (key: StorageKeys) => {
@@ -71,6 +73,92 @@ const storage = {
   set: (key: StorageKeys, value: string | object | boolean | number) => {
     return localStorage.setItem(key, JSON.stringify(value));
   },
+};
+
+const MyTimer = ({ expiryTimestamp }: any) => {
+  const { seconds, start, pause, resume, restart } = useTimer({
+    expiryTimestamp,
+    onExpire: () => console.warn('onExpire called'),
+  });
+
+  return (
+    <div
+      style={{
+        textAlign: 'center',
+        border: '1px solid black',
+        padding: '10px',
+        borderRadius: '10px',
+        background: '#b9cbcd',
+        marginTop: '15px',
+      }}
+    >
+      <div
+        style={{
+          fontSize: '24px',
+          color: 'black',
+        }}
+      >
+        <span
+          style={{
+            marginBottom: '10px',
+          }}
+        >
+          {seconds}
+        </span>
+      </div>
+      <button
+        onClick={start}
+        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+      >
+        Start
+      </button>
+      <button
+        onClick={pause}
+        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+      >
+        Pause
+      </button>
+      <button
+        onClick={resume}
+        style={{ width: '23%', marginRight: '5px', color: '#fff', padding: '5px' }}
+      >
+        Resume
+      </button>
+      <button
+        style={{ width: '23%', color: '#fff', padding: '5px' }}
+        onClick={() => {
+          const time = new Date();
+          time.setSeconds(time.getSeconds() + 300);
+          restart(time);
+        }}
+      >
+        Restart
+      </button>
+    </div>
+  );
+};
+
+const Popup = ({ setRest, setShow }: any) => {
+  return (
+    <div>
+      <h1>Сбросить?</h1>
+      <Button
+        onClick={() => {
+          setRest(true);
+          setShow(false);
+        }}
+      >
+        ДА
+      </Button>
+      <Button
+        onClick={() => {
+          setShow(false);
+        }}
+      >
+        НЕТ
+      </Button>
+    </div>
+  );
 };
 
 const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
@@ -105,7 +193,6 @@ type PlayerTypes = {
 };
 
 const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
-
   const [showEmojiPicker, setShowEmojiPicker] = useState(
     Array(listPlayers.length).fill(false)
   );
@@ -176,7 +263,7 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
               sx={{
                 padding: '5px 5px',
                 fontSize: '16px',
-                background: 'red',
+                background: '#1565c0',
                 borderRight: '1px solid',
                 borderBottom: '1px solid',
                 width: '10px',
@@ -326,9 +413,10 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
                   >
                     {showEmojiPicker[index] && (
                       <EmojiPicker
-                        onSelectEmoji={(emoji: any) =>
-                          handleEmojiClick(emoji, index)
-                        }
+                        onSelectEmoji={(emoji: any) => {
+                          console.log(emoji)
+                          handleEmojiClick(emoji, index);
+                        }}
                         countListPlayers={listPlayers.length}
                       />
                     )}
@@ -415,6 +503,10 @@ type CreateRolesTypes = {
   setResetGame: any;
   setCountPlayers: any;
   setNextStep: any;
+  activeList: any;
+  setActiveList: any;
+  setStartGame: any;
+  startGame: any;
 };
 
 const CreateRoles = ({
@@ -422,6 +514,10 @@ const CreateRoles = ({
   setResetGame,
   setCountPlayers,
   setNextStep,
+  activeList,
+  setActiveList,
+  setStartGame,
+  startGame,
 }: CreateRolesTypes) => {
   const listRoles: any =
     storage.get('listRoles') || (countPlayers === '10' ? roles10 : roles12);
@@ -432,9 +528,7 @@ const CreateRoles = ({
   const [listPlayers, setListPlayers] = useState<PlayerType[]>(
     storage.get('listPlayers') || []
   );
-  const [activeList, setActiveList] = useState(
-    storage.get('activeList') || false
-  );
+
   const [isSelect, setIsSelect] = useState<number | null>(
     storage.get('isSelect') || null
   );
@@ -451,9 +545,14 @@ const CreateRoles = ({
   }, [roles]);
 
   useEffect(() => {
-    isChangedStatus === true && setListPlayers(storage.get('listPlayers') || []);
+    isChangedStatus === true &&
+      setListPlayers(storage.get('listPlayers') || []);
     setIsChangedStatus(false);
   }, [isChangedStatus]);
+
+  useEffect(() => {
+    storage.set('startGame', startGame);
+  }, [startGame]);
 
   const changeStatusUser = (index: any) => {
     setListPlayers((prevListPlayers: any) => {
@@ -550,11 +649,13 @@ const CreateRoles = ({
     storage.remove('playersTabel');
     storage.remove('nextStep');
     setResetGame(true);
+    storage.remove('startGame');
+    setStartGame(false);
   };
 
   return (
     <>
-      {activeList && renderListRoles()}
+      {activeList && listPlayers.length !== +countPlayers && renderListRoles()}
       {listPlayers.length !== +countPlayers && (
         <Box
           sx={{
@@ -609,7 +710,6 @@ const CreateRoles = ({
         <Container>
           <Players
             listPlayers={listPlayers}
-            // newPlayer={newPlayer}
             changeStatusUser={changeStatusUser}
           />
         </Container>
@@ -623,20 +723,25 @@ const CreateRoles = ({
             margin: '15px 0',
           }}
         >
-          <Button
-            variant='contained'
-            sx={{
-              width: '100%',
-              margin: '0 16px',
-              height: '50px',
-            }}
-            disabled={listPlayers.length !== +countPlayers}
-          >
-            Начать игру
-          </Button>
+          {!startGame && (
+            <Button
+              variant='contained'
+              sx={{
+                width: '100%',
+                margin: '0 16px',
+                height: '50px',
+              }}
+              disabled={listPlayers.length !== +countPlayers}
+              onClick={() => {
+                setStartGame(true);
+              }}
+            >
+              Начать игру
+            </Button>
+          )}
 
           <Button
-            // disabled={listPlayers.length === +countPlayers}
+            disabled={startGame && listPlayers.length !== +countPlayers}
             variant='contained'
             sx={{
               width: '100%',
@@ -660,13 +765,32 @@ const Home = () => {
   const [nextStep, setNextStep] = useState<boolean>(
     storage.get('nextStep') || false
   );
+  const [activeList, setActiveList] = useState(
+    storage.get('activeList') || false
+  );
 
   const [restGame, setResetGame] = useState<boolean>(false);
+  const [showPopup, setShow] = useState<boolean>(false);
+  const [startGame, setStartGame] = useState<boolean>(
+    storage.get('startGame') || false
+  );
+
+  const handleShowPopup = () => {
+    setShow(true);
+  };
 
   useEffect(() => {
     storage.set('countPlayers', countPlayers);
     storage.set('nextStep', nextStep);
   }, [countPlayers]);
+
+  useEffect(() => {
+    storage.set('activeList', activeList);
+  }, [activeList]);
+
+  useEffect(() => {
+    storage.set('nextStep', nextStep);
+  }, [nextStep]);
 
   const handleChange = (value: any) => {
     setCountPlayers(value.target.value);
@@ -745,7 +869,10 @@ const Home = () => {
 
             <Button
               disabled={!countPlayers}
-              onClick={() => setNextStep(true)}
+              onClick={() => {
+                // setActiveList(true);
+                setNextStep(true);
+              }}
               variant='contained'
               size='medium'
               style={{
@@ -757,6 +884,7 @@ const Home = () => {
           </Box>
         </Container>
       )}
+      {startGame && <MyTimer />}
 
       {nextStep && (
         <CreateRoles
@@ -764,8 +892,34 @@ const Home = () => {
           setResetGame={setResetGame}
           setCountPlayers={setCountPlayers}
           setNextStep={setNextStep}
+          activeList={activeList}
+          setActiveList={setActiveList}
+          setStartGame={setStartGame}
+          startGame={startGame}
         />
       )}
+
+      {showPopup && <Popup setResetGame={restGame} setShow={handleShowPopup} />}
+
+      {/* <button
+        onClick={() => {
+          storage.remove('activeList');
+          storage.remove('countPlayers');
+          storage.remove('isSave');
+          storage.remove('isSelect');
+          storage.remove('listPlayers');
+          storage.remove('listRoles');
+          storage.remove('playersTabel');
+          storage.remove('nextStep');
+          storage.remove('startGame');
+          setStartGame(false);
+          setActiveList(false);
+          setCountPlayers('');
+          setNextStep(false);
+        }}
+      >
+        x
+      </button> */}
     </>
   );
 };
