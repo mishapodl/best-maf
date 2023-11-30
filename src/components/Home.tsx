@@ -703,7 +703,6 @@ const CreateRoles = ({
     storage.remove('listRoles');
     storage.remove('playersTabel');
     storage.remove('nextStep');
-    setResetGame(true);
     storage.remove('startGame');
     setStartGame(false);
   };
