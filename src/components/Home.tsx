@@ -863,6 +863,7 @@ const Home = () => {
             margin: '0 auto',
             width: '100%',
             boxSizing: 'border-box',
+            marginTop: '260px'
           }}
         >
           <Box
