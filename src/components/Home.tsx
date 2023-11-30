@@ -215,7 +215,7 @@ const Popup = ({ resetGame, setShow }: any) => {
   );
 };
 
-const EmojiPicker = ({ onSelectEmoji, countListPlayers }: any) => {
+const EmojiPicker = ({ onSelectEmoji }: any) => {
   const lengthPlayers = storage.get('countPlayers');
 
   const emojis =
@@ -556,7 +556,6 @@ const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
 
 type CreateRolesTypes = {
   countPlayers: '' | '10' | '12';
-  setResetGame: any;
   setCountPlayers: any;
   setNextStep: any;
   activeList: any;
@@ -567,7 +566,6 @@ type CreateRolesTypes = {
 
 const CreateRoles = ({
   countPlayers,
-  setResetGame,
   setCountPlayers,
   setNextStep,
   activeList,
@@ -829,7 +827,6 @@ const Home = () => {
     storage.get('activeList') || false
   );
 
-  const [restGame, setResetGame] = useState<boolean>(false);
   const [startGame, setStartGame] = useState<boolean>(
     storage.get('startGame') || false
   );
@@ -944,7 +941,6 @@ const Home = () => {
       {nextStep && (
         <CreateRoles
           countPlayers={countPlayers}
-          setResetGame={setResetGame}
           setCountPlayers={setCountPlayers}
           setNextStep={setNextStep}
           activeList={activeList}
