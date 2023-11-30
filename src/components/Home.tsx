@@ -177,7 +177,7 @@ const Popup = ({ resetGame, setShow }: any) => {
           height: '200px',
           justifyContent: 'space-around',
           padding: '50px 5px',
-          top: '30%',
+          top: '15%',
           background: '#84ea7a',
           borderRadius: '10px',
           alignItems: 'center',
@@ -198,7 +198,7 @@ const Popup = ({ resetGame, setShow }: any) => {
             position: 'absolute',
             top: 0,
             padding: 0,
-            right: 0,
+            left: 0,
             minWidth: 0
           }}
         >
