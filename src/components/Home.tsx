@@ -225,7 +225,7 @@ const EmojiPicker = ({ onSelectEmoji }: any) => {
   const lengthPlayers = storage.get('countPlayers');
 
   const emojis =
-    lengthPlayers === '10' ? ['🔪'] : ['❤️‍🩹', '➕', '🔪', '🤐', '💕'];
+    lengthPlayers === '10' ? ['🔪'] : ['🚑', '➕', '🔪', '🤐', '🫦'];
 
   return (
     <div
@@ -805,11 +805,14 @@ const CreateRoles = ({
             disabled={startGame && listPlayers.length !== +countPlayers}
             variant='contained'
             sx={{
-              width: '100%',
+              width: '30%',
               margin: '0 16px',
-              height: '50px',
+              height: '40px',
               background: 'red',
-              fontSize: '24px'
+              fontSize: '16px',
+              position: 'fixed',
+              bottom: '5px',
+              right: '-5px'
             }}
             onClick={() => {
               setShow(true);
