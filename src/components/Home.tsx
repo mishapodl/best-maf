@@ -188,7 +188,6 @@ const Popup = ({ resetGame, setShow }: any) => {
       >
         <Button
           onClick={() => {
-            console.log(233);
             resetGame();
             setShow(false);
           }}
@@ -630,7 +629,7 @@ const CreateRoles = ({
 
   useEffect(() => {
     storage.set('startGame', startGame);
-    storage.remove('emojies');
+    !startGame && storage.remove('emojies');
   }, [startGame]);
 
   const changeStatusUser = (index: any) => {
