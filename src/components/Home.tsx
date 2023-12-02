@@ -61,7 +61,8 @@ type StorageKeys =
   | 'isSelect'
   | 'isSave'
   | 'startGame'
-  | 'notions';
+  | 'notions'
+  | 'emojies';
 
 const storage = {
   get: (key: StorageKeys) => {
@@ -253,25 +254,39 @@ const EmojiPicker = ({ onSelectEmoji }: any) => {
 type PlayerTypes = {
   listPlayers: PlayerType[];
   changeStatusUser: any;
+  setNextRound: any;
+  nextRound: any;
 };
 
-const Players = ({ listPlayers, changeStatusUser }: PlayerTypes) => {
+const Players = ({
+  listPlayers,
+  changeStatusUser,
+  setNextRound,
+  nextRound,
+}: PlayerTypes) => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(
     Array(listPlayers.length).fill(false)
   );
   const [inputValues, setInputValues] = useState(
-    Array(listPlayers.length).fill('')
+    storage.get('emojies') || Array(listPlayers.length).fill('')
   );
+
+  useEffect(() => {
+    nextRound && setInputValues(Array(listPlayers.length).fill(''));
+    setNextRound(false);
+  }, [nextRound]);
 
   const toggleEmojiPicker = (index: any) => {
     const newShowEmojiPicker = [...showEmojiPicker];
     newShowEmojiPicker[index] = !newShowEmojiPicker[index];
     setShowEmojiPicker(newShowEmojiPicker);
   };
+
   const handleEmojiClick = (emoji: any, index: any) => {
     const newInputValues = [...inputValues];
     newInputValues[index] = inputValues[index] + emoji;
     setInputValues(newInputValues);
+    storage.set('emojies', newInputValues);
   };
 
   return (
@@ -615,6 +630,7 @@ const CreateRoles = ({
 
   useEffect(() => {
     storage.set('startGame', startGame);
+    storage.remove('emojies');
   }, [startGame]);
 
   const changeStatusUser = (index: any) => {
@@ -697,6 +713,12 @@ const CreateRoles = ({
 
   const [notions, setNotions] = useState(storage.get('notions') || '');
 
+  const [nextRound, setNextRound] = useState(false);
+
+  useEffect(() => {
+    nextRound && storage.remove('emojies');
+  }, [nextRound]);
+
   const resetGame = () => {
     setRoles([]);
     setListPlayers([]);
@@ -716,6 +738,7 @@ const CreateRoles = ({
     storage.remove('nextStep');
     storage.remove('startGame');
     storage.remove('notions');
+    storage.remove('emojies');
     setStartGame(false);
   };
 
@@ -777,6 +800,8 @@ const CreateRoles = ({
           <Players
             listPlayers={listPlayers}
             changeStatusUser={changeStatusUser}
+            setNextRound={setNextRound}
+            nextRound={nextRound}
           />
         </Container>
       )}
@@ -809,7 +834,7 @@ const CreateRoles = ({
             margin: '15px 0',
           }}
         >
-          {!startGame && (
+          {!startGame ? (
             <Button
               variant='contained'
               sx={{
@@ -823,6 +848,21 @@ const CreateRoles = ({
               }}
             >
               Начать игру
+            </Button>
+          ) : (
+            <Button
+              variant='contained'
+              sx={{
+                width: '100%',
+                margin: '0 16px',
+                height: '50px',
+              }}
+              disabled={nextRound}
+              onClick={() => {
+                setNextRound(true);
+              }}
+            >
+              Следующий круг
             </Button>
           )}
 
